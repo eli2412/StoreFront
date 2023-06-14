@@ -40,10 +40,16 @@ public class StoreFront {
         inventoryManager.addProduct(health1);
     }
     
+    /**
+     * welcome message
+     */
     public void displayWelcomeMessage() {
         System.out.println("Welcome to " + STORE_NAME);
     }
     
+    /**
+     * Options for user
+     */
     public void displayMenu() {
         System.out.println("\nActions:");
         System.out.println("1. View Inventory");
@@ -54,6 +60,9 @@ public class StoreFront {
         System.out.println("0. Exit");
     }
 
+    /**
+     * @param choices
+     */
     public void executeAction(int choice) {
         switch (choice) {
             case 1:
@@ -72,13 +81,16 @@ public class StoreFront {
                 cancelPurchase();
                 break;
             case 0:
-                System.out.println("Thank you for using the Store Front Application. Goodbye!");
+                System.out.println("Thank you for coming to PAWN SHOP. Goodbye!");
                 System.exit(0);
             default:
                 System.out.println("Invalid choice. Please try again.");
         }
     }
     
+    /**
+     * display inventory of items
+     */
     public void displayInventory() {
         List<SalableProduct> inventory = inventoryManager.getInventory();
         if (inventory.isEmpty()) {
@@ -91,6 +103,9 @@ public class StoreFront {
         }
     }
     
+    /**
+     * items selected added to cart
+     */
     public void addItemToCart() {
         Scanner scanner = new Scanner(System.in);
         displayInventory();
@@ -106,6 +121,9 @@ public class StoreFront {
         }
     }
 
+    /**
+     * checks for items in cart and selects item for removal
+     */
     public void removeItemFromCart() {
         Scanner scanner = new Scanner(System.in);
         List<SalableProduct> cartItems = shoppingCart.getCartItems();
@@ -149,6 +167,9 @@ public class StoreFront {
         }
     }
 
+    /**
+     * checks for items and cancels purchase in cart
+     */
     public void cancelPurchase() {
         List<SalableProduct> cartItems = shoppingCart.getCartItems();
         if (cartItems.isEmpty()) {
@@ -164,7 +185,7 @@ public class StoreFront {
         }
     }
     /*
-     * 
+     * runs programs 
      */
     public void start() {
         Scanner scanner = new Scanner(System.in);
