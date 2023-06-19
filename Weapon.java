@@ -1,6 +1,6 @@
 package Milestone239;
 
-public class Weapon extends SalableProduct {
+public class Weapon extends SalableProduct implements Comparable<Weapon> {
     private int damage;
 
     /**
@@ -27,5 +27,12 @@ public class Weapon extends SalableProduct {
      */
     public void setDamage(int damage) {
         this.damage = damage;
+    }
+    /**
+     *search with out case sensitive
+     */
+    @Override
+    public int compareTo(Weapon other) {
+        return this.getName().compareToIgnoreCase(other.getName());
     }
 }
