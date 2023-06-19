@@ -31,14 +31,12 @@ public abstract class SalableProduct {
 		 */
 		@Override
 		public boolean equals(Object obj) {
-		    if (this == obj) {
-		        return true;
-		    }
-		    if (obj == null || getClass() != obj.getClass()) {
-		        return false;
-		    }
-		    SalableProduct other = (SalableProduct) obj;
-		    return Objects.equals(name, other.name);
+	        if (this == obj)
+	            return true;
+	        if (obj == null || getClass() != obj.getClass())
+	            return false;
+	        SalableProduct other = (SalableProduct) obj;
+	        return name.equalsIgnoreCase(other.name);
 		           
 		}
 		
