@@ -37,4 +37,10 @@ public class ShoppingCart {
     public List<SalableProduct> getCartItems() {
         return cartItems;
     }
+    /**
+     * empties cart
+     */
+    public void emptyCart() {
+        cartItems.clear();
+    }
 }
