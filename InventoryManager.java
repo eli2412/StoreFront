@@ -16,7 +16,6 @@ public class InventoryManager {
     public InventoryManager() {
         this.inventory = new ArrayList<>();
     }
-
     /**
      * @param product add to inventory
      */
@@ -32,17 +31,9 @@ public class InventoryManager {
     }
 
     /**
-     * @return
+     * @return list
      */
     public List<SalableProduct> getInventory() {
         return inventory;
-    }
-    public SalableProduct findProductByName(String productName) {
-        for (SalableProduct product : inventory) {
-            if (product.getName().equals(productName)) {
-                return product;
-            }
-        }
-        return null; // Product not found
     }
 }
