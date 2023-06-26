@@ -1,8 +1,14 @@
 package Milestone239;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * @author eliascruz
@@ -30,19 +36,26 @@ public class StoreFront {
      */
     public void initializeStore() {
         // Add initial products to the inventory
-    	Weapon weapon1 = new Weapon("Sword", "A sharp sword", 49.99, 5, 10);
-        Weapon weapon2 = new Weapon("Axe", "A powerful axe", 59.99, 3, 15);
-        Armor armor1 = new Armor("Helmet", "A protective helmet", 29.99, 10, 5);
-        Armor armor2 = new Armor("Chestplate", "A sturdy chestplate", 39.99, 7, 8);
-        Health health1 = new Health("Potion", "A healing potion", 9.99, 20, 20);
-        Health health2 = new Health("Elixir", "Powerful healing elixir", 100, 10, 100);
+    	try {
+    		// read the JSON data from a file
+            ObjectMapper objectMapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(SalableProduct.class, new SalableProductDeserializer());
+            objectMapper.registerModule(module);
 
-        inventoryManager.addProduct(weapon1);
-        inventoryManager.addProduct(weapon2);
-        inventoryManager.addProduct(armor1);
-        inventoryManager.addProduct(armor2);
-        inventoryManager.addProduct(health1);
-        inventoryManager.addProduct(health2);
+            List<SalableProduct> products = objectMapper.readValue(
+                    new File("inventory.json"),
+                    new TypeReference<List<SalableProduct>>() {}
+            );
+            // populate the inventory with the deserialized products.
+            for (SalableProduct product : products) {
+                inventoryManager.addProduct(product);
+            }
+
+            System.out.println("Store inventory initialized successfully.");
+        } catch (IOException e) {
+            System.out.println("Failed to initialize store inventory: " + e.getMessage());
+        }
     }
     
     /**
@@ -125,6 +138,7 @@ public class StoreFront {
         for (SalableProduct product : inventory) {
             System.out.println(product.getName() + " - $" + product.getPrice() + " - " + product.getQuantity() + " in stock");
             System.out.println("Description: " + product.getDescription());
+            System.out.println("Type: " + product.getType());
             System.out.println(LINE_SEPARATOR);
         }
     }
