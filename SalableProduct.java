@@ -11,18 +11,22 @@ public abstract class SalableProduct {
 		private String description;
 		private double price;
 		private int quantity;
+		private String type;
+		
 		
 		/**
 		 * @param name
 		 * @param description
 		 * @param price
 		 * @param quantity
+		 * @param type
 		 */
-		public SalableProduct(String name, String description, double price, int quantity) {
+		public SalableProduct(String name, String description, double price, int quantity, String type) {
 	        this.name = name;
 	        this.description = description;
 	        this.price = price;
 	        this.quantity = quantity;
+	        this.type = type;
 	    }
 
 		/**
@@ -96,4 +100,18 @@ public abstract class SalableProduct {
 	    public void setQuantity(int quantity) {
 	        this.quantity = quantity;
 	    }
+	    /**
+	     * @return
+	     */
+	    public String getType() {
+	        return type;
+	    }
+
+	    /**
+	     * @param type
+	     */
+	    public void setType(String type) {
+	        this.type = type;
+	    }
 	}
+
