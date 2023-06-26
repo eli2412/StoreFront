@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Sword",
+    "description": "A sharp sword",
+    "price": 49.99,
+    "quantity": 5,
+    "damage": 10,
+    "type": "weapon"
+  },
+  {
+    "name": "Axe",
+    "description": "A powerful axe",
+    "price": 59.99,
+    "quantity": 3,
+    "damage": 15,
+    "type": "weapon"
+  },
+  {
+    "name": "Helmet",
+    "description": "A protective helmet",
+    "price": 29.99,
+    "quantity": 10,
+    "defense": 5,
+    "type": "armor"
+  },
+  {
+    "name": "Chestplate",
+    "description": "A sturdy chestplate",
+    "price": 39.99,
+    "quantity": 7,
+    "defense": 8,
+    "type": "armor"
+  },
+  {
+    "name": "Potion",
+    "description": "A healing potion",
+    "price": 9.99,
+    "quantity": 20,
+    "healingPoints": 20,
+    "type": "health"
+  },
+  {
+    "name": "Elixir",
+    "description": "Powerful healing elixir",
+    "price": 100,
+    "quantity": 10,
+    "healingPoints": 100,
+    "type": "health"
+  }
+]
