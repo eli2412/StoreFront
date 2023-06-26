@@ -2,6 +2,15 @@ package Milestone239;
 
 public class Armor extends SalableProduct {
     private int defense;
+    private String type;
+    
+    /**
+     * field inputs
+     */
+    public Armor() {
+    	super("", "", 0, 0, "");
+
+    }
 
     /**
      * @param name
@@ -10,9 +19,10 @@ public class Armor extends SalableProduct {
      * @param quantity
      * @param defense
      */
-    public Armor(String name, String description, double price, int quantity, int defense) {
-        super(name, description, price, quantity);
+    public Armor(String name, String description, double price, int quantity, int defense, String type) {
+        super(name, description, price, quantity, type);
         this.defense = defense;
+        this.type = type;
     }
 
     /**
@@ -28,4 +38,12 @@ public class Armor extends SalableProduct {
     public void setDefense(int defense) {
         this.defense = defense;
     }
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }
