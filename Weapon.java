@@ -48,6 +48,7 @@ public class Weapon extends SalableProduct implements Comparable<Weapon> {
      */
     @Override
     public int compareTo(Weapon other) {
-        return this.getName().compareToIgnoreCase(other.getName());
+        // Compare weapons based on their damage
+        return Integer.compare(this.damage, other.damage);
     }
 }
