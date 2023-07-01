@@ -17,22 +17,15 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 	        this(null);
 	    }
 
-	    /**
-	     * @param vc
-	     */
 	    public SalableProductDeserializer(Class<?> vc) {
 	        super(vc);
 	    }
 
-	    /**
-	     * reads JSON file
-	     * specifies the type of the product and adds to class 
-	     */
 	    @Override
 	    public SalableProduct deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-	    	ObjectCodec codec = parser.getCodec();
+	        ObjectCodec codec = parser.getCodec();
 	        JsonNode node = codec.readTree(parser);
-	        
+
 	        String type = node.get("type").asText();
 	        switch (type) {
 	            case "armor":
@@ -43,7 +36,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 	                return codec.treeToValue(node, Weapon.class);
 	            default:
 	                throw new IllegalArgumentException("Unknown product type: " + type);
+	        }
 	    }
 	}
 
-}
