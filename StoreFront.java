@@ -3,6 +3,7 @@ package Milestone239;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,19 +15,20 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * @author eliascruz
  *
  */
-public class StoreFront {
+public class StoreFront<T extends SalableProduct> {
 	private static final String STORE_NAME = "PAWN SHOP";
 	private static final String LINE_SEPARATOR = "-----------------------------";
     private static final String MENU_SEPARATOR = "=============================";
-	private InventoryManager inventoryManager;
-    private ShoppingCart shoppingCart;
+    
+    private InventoryManager<T> inventoryManager;
+    private ShoppingCart<T> shoppingCart;
 
     /**
      * 
      */
     public StoreFront() {
-        this.inventoryManager = new InventoryManager();
-        this.shoppingCart = new ShoppingCart();
+    	this.inventoryManager = new InventoryManager<>();
+        this.shoppingCart = new ShoppingCart<>();
     }
 
     
@@ -43,12 +45,12 @@ public class StoreFront {
             module.addDeserializer(SalableProduct.class, new SalableProductDeserializer());
             objectMapper.registerModule(module);
 
-            List<SalableProduct> products = objectMapper.readValue(
+            List<T> products = objectMapper.readValue(
                     new File("inventory.json"),
-                    new TypeReference<List<SalableProduct>>() {}
+                    new TypeReference<List<T>>() {}
             );
             // populate the inventory with the deserialized products.
-            for (SalableProduct product : products) {
+            for (T product : products) {
                 inventoryManager.addProduct(product);
             }
 
@@ -77,7 +79,8 @@ public class StoreFront {
         System.out.println("4. View Cart");
         System.out.println("5. Empty Cart");
         System.out.println("6. Purchase Items");
-        System.out.println("7. Exit Store");
+        System.out.println("7. Sort Items");
+        System.out.println("8. Exit Store");
         System.out.println(LINE_SEPARATOR);
         System.out.print("Enter your choice: ");
     }
@@ -114,8 +117,12 @@ public class StoreFront {
                 	purchaseItems();
                 	break;
                 case 7:
+                	sortItems();
+                	break;
+                case 8:
                     System.out.println("Thank you for shopping!");
                     break;
+                
                 
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -123,7 +130,7 @@ public class StoreFront {
             }
 
             System.out.println(MENU_SEPARATOR);
-        } while (choice != 7);
+        } while (choice != 8);
 
         scanner.close();
     }
@@ -134,13 +141,62 @@ public class StoreFront {
         System.out.println("Store Inventory:");
         System.out.println(LINE_SEPARATOR);
 
-        List<SalableProduct> inventory = inventoryManager.getInventory();
-        for (SalableProduct product : inventory) {
+        List<T> inventory = inventoryManager.getInventory();
+        for (T product : inventory) {
             System.out.println(product.getName() + " - $" + product.getPrice() + " - " + product.getQuantity() + " in stock");
             System.out.println("Description: " + product.getDescription());
             System.out.println("Type: " + product.getType());
             System.out.println(LINE_SEPARATOR);
         }
+    }
+    
+    /**
+     * sorting items Ascending or descending by name or price
+     */
+    private void sortItems()
+    {
+    	System.out.println("Store Inventory:");
+        System.out.println(LINE_SEPARATOR);
+    	
+        List<T> inventory = inventoryManager.getInventory();
+
+        // Sorting options
+        System.out.println("Sort by:");
+        System.out.println("1. Name (A-Z)");
+        System.out.println("2. Name (Z-A)");
+        System.out.println("3. Price (Low - High)");
+        System.out.println("4. Price (High to Low)");
+        System.out.print("Enter your choice: ");
+        Scanner scanner = new Scanner(System.in);
+        int sortChoice = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println(LINE_SEPARATOR);
+    	
+        switch (sortChoice) {
+        case 1:
+            inventory.sort(Comparator.comparing(SalableProduct::getName));
+            break;
+        case 2:
+            inventory.sort(Comparator.comparing(SalableProduct::getName).reversed());
+            break;
+        case 3:
+            inventory.sort(Comparator.comparing(SalableProduct::getPrice));
+            break;
+        case 4:
+            inventory.sort(Comparator.comparing(SalableProduct::getPrice).reversed());
+            break;
+        default:
+            System.out.println("Invalid choice. Showing unsorted inventory.");
+            break;
+        }
+         // Print the sorted inventory
+            for (T product : inventory) {
+                System.out.println(product.getName() + " - $" + product.getPrice() + " - " + product.getQuantity() + " in stock");
+                System.out.println("Description: " + product.getDescription());
+                System.out.println("Type: " + product.getType());
+                System.out.println(LINE_SEPARATOR);
+            
+    }
     }
 
     /**
@@ -151,8 +207,8 @@ public class StoreFront {
         System.out.print("Enter the name of the product to add: ");
         String productName = scanner.nextLine();
 
-        List<SalableProduct> inventory = inventoryManager.getInventory();
-        SalableProduct product = findProductByName(productName, inventory);
+        List<T> inventory = inventoryManager.getInventory();
+        T product = findProductByName(productName, inventory);
 
         if (product != null) {
             if (product.getQuantity() > 0) {
@@ -175,8 +231,8 @@ public class StoreFront {
         System.out.print("Enter the name of the product to remove: ");
         String productName = scanner.nextLine();
 
-        List<SalableProduct> cartItems = shoppingCart.getCartItems();
-        SalableProduct product = findProductByName(productName, cartItems);
+        List<T> cartItems = shoppingCart.getCartItems();
+        T product = findProductByName(productName, cartItems);
 
         if (product != null) {
             shoppingCart.removeItem(product);
@@ -194,7 +250,7 @@ public class StoreFront {
         System.out.println("Shopping Cart:");
         System.out.println(LINE_SEPARATOR);
 
-        List<SalableProduct> cartItems = shoppingCart.getCartItems();
+        List<T> cartItems = shoppingCart.getCartItems();
         double totalPrice = 0;
 
         for (SalableProduct product : cartItems) {
@@ -217,8 +273,8 @@ public class StoreFront {
      * @param products
      * @return product by name
      */
-    private SalableProduct findProductByName(String productName, List<SalableProduct> products) {
-        for (SalableProduct product : products) {
+    private T findProductByName(String productName, List<T> products) {
+        for (T product : products) {
             if (product.getName().equalsIgnoreCase(productName)) {
                 return product;
             }
@@ -232,7 +288,7 @@ public class StoreFront {
      * Allows for purchase of item
      */
     public void purchaseItems() {
-        List<SalableProduct> cartItems = shoppingCart.getCartItems();
+    	List<T> cartItems = shoppingCart.getCartItems();
         if (cartItems.isEmpty()) {
             System.out.println("The cart is empty. Nothing to purchase.");
         } else {
@@ -244,13 +300,16 @@ public class StoreFront {
             System.out.println("Purchase completed successfully.");
         }
     }
+    
+    
     /**
      * @param starts code
      */
     public static void main(String[] args) {
-        StoreFront storeFront = new StoreFront();
+    	StoreFront<SalableProduct> storeFront = new StoreFront<>();
         storeFront.displayWelcomeMessage();
         storeFront.initializeStore();
         storeFront.start();
     }
 }
+
