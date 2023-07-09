@@ -89,6 +89,10 @@ public class StoreFront<T extends SalableProduct> {
      * calls from specific user input
      */
     public void start() {
+    	AdministrationService administrationService = new AdministrationService();
+        Thread adminThread = new Thread(administrationService::startService);
+        adminThread.setDaemon(true);
+        adminThread.start();
         Scanner scanner = new Scanner(System.in);
         int choice;
 
@@ -121,9 +125,7 @@ public class StoreFront<T extends SalableProduct> {
                 	break;
                 case 8:
                     System.out.println("Thank you for shopping!");
-                    break;
-                
-                
+                    break;              
                 default:
                     System.out.println("Invalid choice. Please try again.");
                     break;
@@ -312,4 +314,3 @@ public class StoreFront<T extends SalableProduct> {
         storeFront.start();
     }
 }
-
