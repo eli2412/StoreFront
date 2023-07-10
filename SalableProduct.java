@@ -1,10 +1,12 @@
 package Milestone239;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author eliascruz
  *
  */
+@JsonDeserialize(using = SalableProductDeserializer.class)
 public abstract class SalableProduct {
 		private String name;
 		private String description;
