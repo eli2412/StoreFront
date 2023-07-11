@@ -3,6 +3,8 @@ package Milestone239;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,6 +13,11 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * @author eliascruz
+ *
+ * @param <T>
+ */
 public class AdministrationService<T extends SalableProduct> {
 	private static final int BUFFER_SIZE = 1024;
 	static final int PORT = 13348;
@@ -22,17 +29,18 @@ public class AdministrationService<T extends SalableProduct> {
         this.networkServer = new NetworkServer(this);
         this.inventoryManager = storeFront.getInventoryManager();
         networkServer.startServer(); // start in background
+        
     }
     
     /**
-     * starts and receives commands
+     * starts the NetworkServer on a separate thread and listens for commands from the user
      */
     public void startService() {
-        Thread serverThread = new Thread(networkServer);
+    	Thread serverThread = new Thread(networkServer);
         serverThread.start();
-
         try (Scanner scanner = new Scanner(System.in)) {
-            while (true) {
+            boolean continueService = true;
+            while (continueService) {
                 System.out.print("Please enter a command (U/R): ");
                 String command = scanner.nextLine();
                 if (command.equalsIgnoreCase("U")) {
@@ -42,6 +50,10 @@ public class AdministrationService<T extends SalableProduct> {
                 } else {
                     System.out.println("Invalid command. Please try again.");
                 }
+                
+                System.out.print("Continue service? (Y/N): ");
+                String continueOption = scanner.nextLine();
+                continueService = continueOption.equalsIgnoreCase("Y");
             }
         } catch (Exception e) {
             System.out.println("Error in Administration Service: " + e.getMessage());
@@ -52,8 +64,8 @@ public class AdministrationService<T extends SalableProduct> {
     /**
      * @param command
      * add new product
-     */
-    public void processCommand(String command) {
+     * enter the details of a new product
+     */public void processCommand(String command) {
     	
         if (command.equalsIgnoreCase("U")) {
         	
@@ -115,32 +127,54 @@ public class AdministrationService<T extends SalableProduct> {
             } catch (IOException e) {
                 System.out.println("Error writing inventory to JSON file: " + e.getMessage());
             }
+            
             sendCommandToServer(command, null);
         } else if (command.equalsIgnoreCase("R")) {
         	 // Process the retrieve command
-            // Return all of the Salable Products from the Store Front Inventory in JSON format
-        	List<T> inventory = inventoryManager.getInventory();
+            // Return the Salable Products from the Store Front Inventory in JSON format
+        	try {
+        		// read the JSON data from a file
+                ObjectMapper objectMapper = new ObjectMapper();
+                SimpleModule module = new SimpleModule();
+                module.addDeserializer(SalableProduct.class, new SalableProductDeserializer());
+                objectMapper.registerModule(module);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                String inventoryJson = objectMapper.writeValueAsString(inventory);
+                List<T> products = objectMapper.readValue(
+                        new File("inventory.json"),
+                        new TypeReference<List<T>>() {}
+                );
+                for (T product : products) {
+                    inventoryManager.addProduct(product);
+                }
                 // Send the inventoryJson to the administration application or display it as needed
-                System.out.println("New inventory retrieved successfully:\n" + inventoryJson);
-            } catch (JsonProcessingException e) {
+                System.out.println("New inventory retrieved successfully:\n");
+                List<T> inventory = inventoryManager.getInventory();
+                for (T product : inventory) {
+                    System.out.println(product.getName() + " - $" + product.getPrice() + " - " + product.getQuantity() + " in stock");
+                    System.out.println("Description: " + product.getDescription());
+                    System.out.println("Type: " + product.getType());
+                    System.out.println("-------");
+                }
+            } catch (IOException e) {
                 System.out.println("Error serializing inventory to JSON: " + e.getMessage());
             }
         }
+        
         else {
             // Invalid command
             System.out.println("Invalid command received: " + command);
         }
     }
     
+    /**
+     * @param command
+     * @param payload json
+     */
     private void sendCommandToServer(String command, String payload) {
-        int port = networkServer.getPort();
+    	int port = networkServer.getPort();
         try (DatagramSocket socket = new DatagramSocket()) {
             InetAddress address = InetAddress.getLocalHost();
-            String requestData = command + "\n" + payload;
+            String requestData = command + "\n" + payload; // Include payload
             byte[] buffer = requestData.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
             socket.send(packet);
@@ -157,6 +191,9 @@ public class AdministrationService<T extends SalableProduct> {
     }
 
 
+	/**
+	 * @return json inventory
+	 */
 	public String getInventoryJson() {
 		ObjectMapper objectMapper = new ObjectMapper();
 	    try {
