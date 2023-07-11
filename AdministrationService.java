@@ -158,8 +158,13 @@ public class AdministrationService<T extends SalableProduct> {
 
 
 	public String getInventoryJson() {
-		
-		return null;
+		ObjectMapper objectMapper = new ObjectMapper();
+	    try {
+	        return objectMapper.writeValueAsString(inventoryManager.getInventory());
+	    } catch (JsonProcessingException e) {
+	        System.out.println("Error serializing inventory to JSON: " + e.getMessage());
+	        return null;
+	    }
 	}
 	public static void main(String[] args) {
     	System.out.println("Welcome Admin");
