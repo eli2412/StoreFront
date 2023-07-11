@@ -1,5 +1,6 @@
 package Milestone239;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,11 +32,6 @@ public class StoreFront<T extends SalableProduct> {
   
     private InventoryManager<T> inventoryManager;
     private ShoppingCart<T> shoppingCart;
-    private NetworkServer networkServer;
-    private AdministrationService<T> administrationService;
-    
-   
-
 
     /**
      * 
@@ -43,11 +39,13 @@ public class StoreFront<T extends SalableProduct> {
     public StoreFront() {
     	this.inventoryManager = new InventoryManager<>();
         this.shoppingCart = new ShoppingCart<>();
-        administrationService = new AdministrationService(this);
+        
+    }
+    
+    public InventoryManager<T> getInventoryManager() {
+        return inventoryManager;
     }
 
-    
-    
     /**
      * items add for inventory
      */
@@ -99,24 +97,12 @@ public class StoreFront<T extends SalableProduct> {
         System.out.println(LINE_SEPARATOR);
         System.out.print("Enter your choice: ");
     }
-    
-    private void sendCommandToServer(String command) {
-    	int port = networkServer.getPort();
-        try (DatagramSocket socket = new DatagramSocket()) {
-            InetAddress address = InetAddress.getLocalHost();
-            byte[] buffer = command.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
-            socket.send(packet);
-        } catch (IOException e) {
-            System.out.println("Error sending command to server: " + e.getMessage());
-        }
-    }
 
     /**
      * calls from specific user input
      */
     public void start() {
-    	
+    	Thread inputThread = new Thread(() -> {
         Scanner scanner = new Scanner(System.in);
         int choice;
 
@@ -159,6 +145,9 @@ public class StoreFront<T extends SalableProduct> {
         } while (choice != 8);
 
         scanner.close();
+    	});
+
+        inputThread.start();
     }
     /**
      * returns stock inventory
@@ -326,22 +315,6 @@ public class StoreFront<T extends SalableProduct> {
             System.out.println("Purchase completed successfully.");
         }
     }
-    public void addProductToInventory(T product) {
-        inventoryManager.addProduct(product);
-        // Serialize the updated inventory to JSON
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            List<T> inventory = inventoryManager.getInventory();
-            String inventoryJson = objectMapper.writeValueAsString(inventory);
-            // Write the JSON string to the inventory.json file
-            Files.writeString(Paths.get("inventory.json"), inventoryJson);
-            System.out.println("New product added to inventory: " + product.getName());
-        } catch (IOException e) {
-            System.out.println("Error writing inventory to JSON file: " + e.getMessage());
-        }
-    }
-
-
     
     /**
      * @param starts code
@@ -350,9 +323,6 @@ public class StoreFront<T extends SalableProduct> {
     		StoreFront<SalableProduct> storeFront = new StoreFront<>();
             storeFront.displayWelcomeMessage();
             storeFront.initializeStore();
-            
-            
             storeFront.start();
     	}
-
     }
