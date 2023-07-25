@@ -1,2 +1,2 @@
-# Milestone_239
-GCU Milestone 239
+# Store front
+Store Front with Admin Functionality
